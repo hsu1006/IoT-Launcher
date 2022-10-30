@@ -13,7 +13,7 @@ import {
 export class BookingController {
   constructor(private readonly bookingService: BookingService) {}
 
-  @MessagePattern('book/new')
+  @MessagePattern('table1/rfid_log')
   async getLogsFromNotifications(
     @Payload() data: Object,
     @Ctx() context: MqttContext,

@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { ValidateUserDto } from './dto/validate-user.dto';
 import { User } from './entities/user.entity';
 
 @Injectable()
@@ -24,8 +25,7 @@ export class UserService {
       return this.user.findOneBy({userId});
     }catch (error){
       throw error
-    }
-    
+    } 
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
@@ -34,5 +34,18 @@ export class UserService {
 
   remove(id: number) {
     return `This action removes a #${id} user`;
+  }
+
+  async validateUser(validateUserDto: ValidateUserDto){
+    const username = validateUserDto.username
+    const user = await this.user.findOneBy({username});
+    if (user != null)
+    {
+      if(user.password == validateUserDto.password)
+      {
+        return user;
+      }
+    }
+    return null;
   }
 }
