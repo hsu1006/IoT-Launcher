@@ -12,7 +12,7 @@ export class SnackOrder {
     snackId: Snack;
 
     @ManyToOne(type => User, user => user.userId)
-    userId: User;
+    ownerId: User;
 
     @Column()
     quantity: number;

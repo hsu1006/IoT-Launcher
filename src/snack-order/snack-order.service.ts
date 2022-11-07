@@ -22,7 +22,7 @@ export class SnackOrderService {
     return this.snackOrder.find({
       relations: {
           snackId: true,
-          userId: true,
+          ownerId: true,
       },});
   }
 
@@ -33,20 +33,20 @@ export class SnackOrderService {
       },
       relations:{
         snackId: true,
-        userId: true,
+        ownerId: true,
       }
     });
   }
 
-  async findAllFromOneUser(userId: number){
-    const user  = await this.user.findOneBy({userId});
+  async findAllFromOneUser(id: number){
+    const user  = await this.user.findOneBy({userId: id});
     return this.snackOrder.find({
       where:{
-        userId: user
+        ownerId: {userId: id}
       },
       relations:{
         snackId: true,
-        userId: true,
+        ownerId: true,
       }
     })
   }

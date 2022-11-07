@@ -9,7 +9,7 @@ export class CreateSnackOrderDto {
 
     @IsNotEmpty()
     @IsNumber()
-    userId: User;
+    ownerId: User;
 
     @IsNotEmpty()
     @IsNumber()
