@@ -15,6 +15,8 @@ import { BookingModule } from './booking/booking.module';
 import { Booking } from './booking/entities/booking.entity';
 import { SnackModule } from './snack/snack.module';
 import { Snack } from './snack/entities/snack.entity';
+import { SnackOrderModule } from './snack-order/snack-order.module';
+import { SnackOrder } from './snack-order/entities/snack-order.entity';
 
 @Module({
   imports: [ConfigModule.forRoot(),
@@ -33,6 +35,7 @@ import { Snack } from './snack/entities/snack.entity';
           TableTrack,
           Booking,
           Snack,
+          SnackOrder,
         ],
         synchronize: true,
       }),
@@ -44,6 +47,7 @@ import { Snack } from './snack/entities/snack.entity';
     TableListModule,
     BookingModule,
     SnackModule,
+    SnackOrderModule,
   ],
   controllers: [AppController],
   providers: [AppService,{

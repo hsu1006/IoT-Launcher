@@ -1,11 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param, Delete, HttpException, HttpStatus } from '@nestjs/common';
 import { TableListService } from './table-list.service';
 import { CreateTableListDto } from './dto/create-table-list.dto';
 import { UpdateTableListDto } from './dto/update-table-list.dto';
 
 @Controller('table-list')
 export class TableListController {
-  constructor(private readonly tableListService: TableListService) {}
+  constructor(private readonly tableListService: TableListService) { }
 
   @Post()
   create(@Body() createTableListDto: CreateTableListDto) {
@@ -22,7 +22,7 @@ export class TableListController {
     return this.tableListService.findOne(+tableId);
   }
 
-  @Patch(':id')
+  @Put(':id')
   update(@Param('id') id: string, @Body() updateTableListDto: UpdateTableListDto) {
     return this.tableListService.update(+id, updateTableListDto);
   }

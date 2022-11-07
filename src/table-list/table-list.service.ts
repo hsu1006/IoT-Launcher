@@ -1,5 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { table } from 'console';
+import { Booking } from 'src/booking/entities/booking.entity';
+import { TableTrack } from 'src/table-track/entities/table-track.entity';
 import { Repository } from 'typeorm';
 import { CreateTableListDto } from './dto/create-table-list.dto';
 import { UpdateTableListDto } from './dto/update-table-list.dto';
@@ -10,7 +13,11 @@ export class TableListService {
   constructor(
     @InjectRepository(TableList)
     private readonly tableList: Repository<TableList>,
-  ){}
+    @InjectRepository(Booking)
+    private readonly booking: Repository<Booking>,
+    @InjectRepository(TableTrack)
+    private readonly tableTrack: Repository<TableTrack>,
+  ) { }
   create(createTableListDto: CreateTableListDto) {
     return this.tableList.save(createTableListDto);
   }
@@ -20,14 +27,29 @@ export class TableListService {
   }
 
   findOne(tableId: number) {
-    return this.tableList.findOneBy({tableId});
+    return this.tableList.findOneBy({ tableId });
   }
 
-  update(id: number, updateTableListDto: UpdateTableListDto) {
-    return `This action updates a #${id} tableList`;
-  }
+  async update(id: number, updateTableListDto: UpdateTableListDto) {
+    try {
+      const tableList = await this.tableList.findOneByOrFail({ tableId: id });
+      return this.tableList.save({ status: updateTableListDto.status, tableId: tableList.tableId });
+    } catch (e) {
+      throw new NotFoundException();
+    }
 
-  remove(id: number) {
-    return `This action removes a #${id} tableList`;
+  }
+  async remove(id: number) {
+    try {
+      const tableList = await this.tableList.findOneByOrFail({ tableId: id });
+      const booking = await this.booking.findBy({tableId: tableList});
+      const tableTrack = await this.tableTrack.findBy({tableId:tableList});
+      await this.booking.remove(booking);
+      await this.tableTrack.remove(tableTrack);
+      return this.tableList.remove([tableList]);
+    } catch (e) {
+      console.log(e);
+      throw new NotFoundException();
+    }
   }
 }

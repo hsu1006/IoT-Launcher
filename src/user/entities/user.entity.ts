@@ -1,3 +1,4 @@
+import { SnackOrder } from 'src/snack-order/entities/snack-order.entity';
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany, } from 'typeorm';
 
 @Entity({name: 'user'})

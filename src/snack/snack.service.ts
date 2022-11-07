@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateSnackDto } from './dto/create-snack.dto';
@@ -28,7 +28,12 @@ export class SnackService {
     return this.snack.findOneBy({snackId});
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} snack`;
+  async remove(id: number) {
+    try {
+      const snack = await this.snack.findOneByOrFail({ snackId: id });
+      return this.snack.remove([snack]);
+    } catch (e) {
+      throw new NotFoundException();
+    }
   }
 }

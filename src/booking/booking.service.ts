@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -12,25 +12,43 @@ export class BookingService {
     @InjectRepository(Booking)
     private readonly booking: Repository<Booking>,
     private moduleRef: ModuleRef,
-  ){}
-  
+  ) { }
+
   create(createBookingDto: CreateBookingDto) {
     return this.booking.save(createBookingDto);
   }
 
   findAll() {
-    return this.booking.find();
+    return this.booking.find({
+      relations: {
+        tableId: true,
+        userId: true,
+      }
+    });
   }
 
   findOne(bookingId: number) {
-    return this.booking.findOneBy({bookingId});
+    return this.booking.findOne({
+      where: {
+        bookingId: bookingId
+      },
+      relations:{
+        tableId: true,
+        userId: true,
+      }
+    });
   }
 
   update(id: number, updateBookingDto: UpdateBookingDto) {
     return `This action updates a #${id} booking`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} booking`;
+  async remove(id: number) {
+    try {
+      const booking = await this.findOne(id);
+      return this.booking.remove([booking]);
+    } catch (e) {
+      throw new NotFoundException();
+    }
   }
 }
