@@ -1,5 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CreateSnackDto } from 'src/snack/dto/create-snack.dto';
+import { Snack } from 'src/snack/entities/snack.entity';
 import { User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { CreateSnackOrderDto } from './dto/create-snack-order.dto';
@@ -13,15 +15,38 @@ export class SnackOrderService {
     private readonly snackOrder: Repository<SnackOrder>,
     @InjectRepository(User)
     private readonly user: Repository<User>,
+    @InjectRepository(Snack)
+    private readonly snack: Repository<Snack>,
   ){}
-  create(createSnackOrderDto: CreateSnackOrderDto) {
-    return this.snackOrder.save(createSnackOrderDto);
+
+  async create(createSnackOrderDto: CreateSnackOrderDto) {
+   
+    const snack = await this.snack.findOne({
+      where:{
+        snackId: createSnackOrderDto.itemId,
+      },
+    })
+    snack.currentStock -= createSnackOrderDto.quantity
+    this.snack.save(snack)
+    const owner = await this.user.findOne({
+      where:{
+        userId: createSnackOrderDto.ownerId,
+      },
+    })
+   
+    createSnackOrderDto.totalAmount = createSnackOrderDto.quantity * snack.price
+    return this.snackOrder.save({
+      itemId: snack,
+      ownerId: owner,
+      quantity: createSnackOrderDto.quantity,
+      totalAmount: createSnackOrderDto.totalAmount,
+    });
   }
 
   findAll() {
     return this.snackOrder.find({
       relations: {
-          snackId: true,
+          itemId: true,
           ownerId: true,
       },});
   }
@@ -32,7 +57,7 @@ export class SnackOrderService {
         snackOrderId: snackOrderId
       },
       relations:{
-        snackId: true,
+        itemId: true,
         ownerId: true,
       }
     });
@@ -45,9 +70,15 @@ export class SnackOrderService {
         ownerId: {userId: id}
       },
       relations:{
-        snackId: true,
+        itemId: true,
         ownerId: true,
       }
+    })
+  }
+
+  async snackOrderVisualization(){
+    const order = await this.snackOrder.findAndCount({
+
     })
   }
 

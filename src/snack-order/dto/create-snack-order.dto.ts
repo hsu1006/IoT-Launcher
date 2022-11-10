@@ -5,11 +5,11 @@ import { User } from "src/user/entities/user.entity";
 export class CreateSnackOrderDto {
     @IsNotEmpty()
     @IsNumber()
-    snackId: Snack;
+    itemId: number;
 
     @IsNotEmpty()
     @IsNumber()
-    ownerId: User;
+    ownerId: number;
 
     @IsNotEmpty()
     @IsNumber()

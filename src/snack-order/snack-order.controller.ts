@@ -27,6 +27,11 @@ export class SnackOrderController {
     return this.snackOrderService.findAllFromOneUser(+id);
   }
 
+  @Get('visualization')
+  snackOrderVisualization(){
+
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateSnackOrderDto: UpdateSnackOrderDto) {
     return this.snackOrderService.update(+id, updateSnackOrderDto);

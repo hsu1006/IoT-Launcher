@@ -9,7 +9,7 @@ export class SnackOrder {
     snackOrderId: number;
 
     @ManyToOne(type => Snack, snack => snack.snackId)
-    snackId: Snack;
+    itemId: Snack;
 
     @ManyToOne(type => User, user => user.userId)
     ownerId: User;
