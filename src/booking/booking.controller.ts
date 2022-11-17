@@ -31,6 +31,11 @@ export class BookingController {
     return this.bookingService.findAll();
   }
 
+  @Get('visualization')
+  bookingVisualization(){
+    return this.bookingService.bookingVisualization();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.bookingService.findOne(+id);

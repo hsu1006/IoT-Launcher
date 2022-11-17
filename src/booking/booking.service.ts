@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { InjectRepository } from '@nestjs/typeorm';
+import console from 'console';
 import { Repository } from 'typeorm';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
@@ -41,6 +42,26 @@ export class BookingService {
 
   update(id: number, updateBookingDto: UpdateBookingDto) {
     return `This action updates a #${id} booking`;
+  }
+
+  async bookingVisualization(){
+    const today = new Date();
+    const first = today.getDate() - today.getDay();
+  
+    const previousSunday = new Date(today.setDate(first));
+    const last = today.getDate() - today.getDay() + 7;
+    const sunday = new Date(today.setDate(last));
+
+    const booking = await this.booking.createQueryBuilder("booking")
+    .leftJoinAndSelect("booking.tableId", "TableList")
+    .groupBy('Day(booking.bookingDate)') 
+    .select('WEEKDAY(booking.bookingDate) as Day, Count(TableList.tableId) as total') 
+    .where('booking.bookingDate BETWEEN :startDate AND :endDate', {startDate: previousSunday,endDate: sunday})
+
+    .orderBy('WEEKDAY(booking.bookingDate)', 'ASC')
+    .execute();
+
+    return booking;
   }
 
   async remove(id: number) {
