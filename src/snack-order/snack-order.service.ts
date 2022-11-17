@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateSnackDto } from 'src/snack/dto/create-snack.dto';
 import { Snack } from 'src/snack/entities/snack.entity';
 import { User } from 'src/user/entities/user.entity';
-import { Repository } from 'typeorm';
+import { getRepository, Repository } from 'typeorm';
 import { CreateSnackOrderDto } from './dto/create-snack-order.dto';
 import { UpdateSnackOrderDto } from './dto/update-snack-order.dto';
 import { SnackOrder } from './entities/snack-order.entity';
@@ -26,21 +26,26 @@ export class SnackOrderService {
         snackId: createSnackOrderDto.itemId,
       },
     })
-    snack.currentStock -= createSnackOrderDto.quantity
-    this.snack.save(snack)
-    const owner = await this.user.findOne({
-      where:{
-        userId: createSnackOrderDto.ownerId,
-      },
-    })
-   
-    createSnackOrderDto.totalAmount = createSnackOrderDto.quantity * snack.price
-    return this.snackOrder.save({
-      itemId: snack,
-      ownerId: owner,
-      quantity: createSnackOrderDto.quantity,
-      totalAmount: createSnackOrderDto.totalAmount,
-    });
+    if(snack.currentStock >= createSnackOrderDto.quantity)
+    {
+      snack.currentStock -= createSnackOrderDto.quantity
+      this.snack.save(snack)
+      const owner = await this.user.findOne({
+        where:{
+          userId: createSnackOrderDto.ownerId,
+        },
+      })
+     
+      createSnackOrderDto.totalAmount = createSnackOrderDto.quantity * snack.price
+      return this.snackOrder.save({
+        itemId: snack,
+        ownerId: owner,
+        quantity: createSnackOrderDto.quantity,
+        totalAmount: createSnackOrderDto.totalAmount,
+      });
+    }else{
+      return null;
+    }
   }
 
   findAll() {
@@ -77,9 +82,14 @@ export class SnackOrderService {
   }
 
   async snackOrderVisualization(){
-    const order = await this.snackOrder.findAndCount({
+    const order = await this.snackOrder.createQueryBuilder("snackOrder")
+    .leftJoinAndSelect("snackOrder.itemId", "Snack")
+    .groupBy('snackOrder.itemId') 
+    .select('Snack.name as SnackName, sum(snackOrder.quantity) as totalQuantity') 
+    .orderBy('count(snackOrder.quantity)', 'DESC')
+    .execute();
 
-    })
+    return order;
   }
 
   update(id: number, updateSnackOrderDto: UpdateSnackOrderDto) {

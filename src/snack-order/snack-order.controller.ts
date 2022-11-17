@@ -17,6 +17,11 @@ export class SnackOrderController {
     return this.snackOrderService.findAll();
   }
 
+  @Get('visualization')
+  snackOrderVisualization(){
+    return this.snackOrderService.snackOrderVisualization();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.snackOrderService.findOne(+id);
@@ -25,11 +30,6 @@ export class SnackOrderController {
   @Get('user/:id')
   findAllFromOneUser(@Param('id') id: string){
     return this.snackOrderService.findAllFromOneUser(+id);
-  }
-
-  @Get('visualization')
-  snackOrderVisualization(){
-
   }
 
   @Patch(':id')
