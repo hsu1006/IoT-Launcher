@@ -14,6 +14,6 @@ export class Snack {
     @Column()
     currentStock: number;
 
-    @Column()
+    @Column({ type: "varchar", length:"10000" })
     imageURL: string;
 }
